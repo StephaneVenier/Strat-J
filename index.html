@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Strat & J — Prototype complet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--radius:16px;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace;--sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;--shadow:0 8px 24px rgba(15,23,42,.10);--z-toast:9999;--z-modal:9998}
+    [data-theme="A"]{--bg:#E8ECF2;--panel:#F4F6FA;--ink:#0E172A;--muted:#475569;--line:#CBD5E1;--primary:#2F6FED;--success:#2BB673;--accent:#FD8E3E;--danger:#EF4444;--chip:#FFFFFF;--chip-line:#E5EAF1}
+    *{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg)}
+    .shell{max-width:1240px;margin:0 auto;padding:28px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:10px;background:conic-gradient(from 210deg,var(--primary),var(--success),var(--primary));box-shadow:inset 0 0 0 2px rgba(255,255,255,.4),0 6px 18px rgba(0,0,0,.15)}
+    .title{font-weight:800}.sub{color:var(--muted);font-size:14px}
+    nav{display:flex;gap:8px;align-items:center}
+    .tab{padding:10px 14px;border-radius:12px;background:var(--chip);border:1px solid var(--chip-line);cursor:pointer;font-weight:600}
+    .tab.active{outline:2px solid var(--primary)}
+    .stack{display:grid;grid-template-columns:280px 1fr;gap:20px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+    .card .bd{padding:16px}
+    .list{display:grid;gap:10px}
+    .chip{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--chip-line);border-radius:12px;background:var(--chip);cursor:pointer}
+    .avatar{width:36px;height:36px;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(180deg,#C7D2FE,#93C5FD);font-weight:700;color:#1E293B}
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .row{display:flex;align-items:center;gap:10px}.row.space{justify-content:space-between}
+    .grid{display:grid;gap:14px}.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .sel,.btn{height:40px;border-radius:12px;border:1px solid var(--line);background:var(--chip);padding:0 12px;font-weight:600;color:var(--ink)}
+    .btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer}.btn.primary{background:var(--primary);border-color:transparent;color:#fff}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px dashed var(--line);border-radius:999px;background:var(--chip)}
+    .small{font-size:12px;color:var(--muted)}.mono{font-family:var(--mono)}
+    .equip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .equip .slot{border:1px dashed var(--line);border-radius:12px;min-height:72px;display:grid;place-items:center;position:relative;background:rgba(255,255,255,.25)}
+    .equip .slot .label{position:absolute;top:6px;left:8px;font:600 10px var(--mono)}
+    .train{display:grid;gap:12px}.train .it{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--chip);display:grid;gap:10px}
+    .journal{display:grid;gap:10px}.log{border-left:3px solid var(--primary);background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+    @media(max-width:980px){.stack{grid-template-columns:1fr}}
+  </style>
+</head>
+<body data-theme="A">
+  <div class="shell">
+    <header>
+      <div class="brand"><div class="logo"></div><div><div class="title">Strat & J</div><div class="sub">Prototype HTML</div></div></div>
+      <nav>
+        <button class="tab active" data-page="dashboard">Tableau de bord</button>
+        <button class="tab" data-page="train">Entraînements</button>
+        <button class="tab" data-page="inventory">Inventaire</button>
+        <div class="row" style="gap:8px;margin-left:12px">
+          <div class="pill"><span>€</span><span class="mono" id="coins">0.00</span></div>
+          <button class="btn" id="dailyBtn">Récompense du jour</button>
+          <div class="pill"><span>Fatigue</span><span class="mono" id="fatigueNow">20</span>/<span class="mono" id="fatigueMax">20</span></div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="stack">
+      <aside class="card">
+        <div class="hd"><h3>Personnages</h3><span class="small">Sélection</span></div>
+        <div class="bd"><div id="charList" class="list"></div></div>
+      </aside>
+      <main class="grid" style="gap:20px">
+        <section class="card"><div class="hd"><h3>Entraînements</h3></div><div class="bd"><div id="trainList" class="train"></div></div></section>
+        <section class="card"><div class="hd"><h3>Inventaire</h3></div><div class="bd"><div id="invGrid" class="grid cols-3"></div></div></section>
+        <section class="card"><div class="hd"><h3>Journal</h3></div><div class="bd"><div id="journal" class="journal"></div></div></section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+  const baseCharacters=[
+    {id:'alex',name:'Alex',img:'./assets/characters/alex.svg',stats:{endu:5,force:5,vit:5,tech:5}},
+    {id:'maya',name:'Maya',img:'./assets/characters/maya.svg',stats:{endu:5.5,force:4.8,vit:5.1,tech:5}},
+    {id:'noah',name:'Noah',img:'./assets/characters/noah.svg',stats:{endu:4.9,force:5.4,vit:5,tech:4.8}},
+    {id:'ines',name:'Inès',img:'./assets/characters/ines.svg',stats:{endu:5.2,force:5,vit:4.9,tech:5.1}},
+    {id:'liam',name:'Liam',img:'./assets/characters/liam.svg',stats:{endu:4.8,force:5.2,vit:5.3,tech:4.9}},
+    {id:'elise',name:'Élise',img:'./assets/characters/elise.svg',stats:{endu:5.1,force:4.9,vit:5,tech:5.2}},
+  ];
+  const catalogs={course:[
+    {id:'ef30',name:'Endurance fondamentale 30′',cost:6,xp:10,gains:{endu:0.6,vit:0.1}},
+    {id:'interv',name:'Intervalles 6×2′',cost:8,xp:14,gains:{vit:0.7,endu:0.2}},
+    {id:'tech',name:'Technique de foulée 15′',cost:4,xp:8,gains:{tech:0.5,vit:0.2}},
+  ]};
+  const inventory=[
+    {id:'it_shoes_basic',name:'Chaussures débutant',slot:'shoes',rarity:'Commun',reduce:{course:0.05}},
+    {id:'it_top_breath',name:'T‑shirt respirant',slot:'top',rarity:'Commun',reduce:{all:0.03}},
+    {id:'it_top_anywear',name:'T-shirt ANYWEAR',slot:'top',rarity:'Rare',img:'./assets/equipment/anywear-shirt.jpg',reduce:{all:0.10}},
+  ];
+  const state={activeChar:'alex',sport:'course',chars:{}};
+  function newCharState(){return{level:1,xp:0,xpNext:50,fatigueMax:20,fatigueNow:20,lastRegenAt:Date.now(),equip:{shoes:null,top:null,bottom:null,watch:null}}}
+  function getCharById(id){return baseCharacters.find(c=>c.id===id)}
+  function renderCharacters(){const wrap=document.getElementById('charList');wrap.innerHTML='';baseCharacters.forEach(c=>{state.chars[c.id]=state.chars[c.id]||newCharState();const cs=state.chars[c.id];const b=document.createElement('button');b.className='chip'+(state.activeChar===c.id?' active':'');b.onclick=()=>{state.activeChar=c.id;renderTrainings();};b.innerHTML=`<div class="avatar">${c.img?`<img src="${c.img}" alt="${c.name}">`:c.name[0]}</div><div style="text-align:left"><div style="font-weight:600">${c.name}</div><div class="small">Fatigue ${cs.fatigueNow}/${cs.fatigueMax} — Niv ${cs.level}</div></div>`;wrap.appendChild(b)})}
+  function equipReductionFor(){const cs=state.chars[state.activeChar];const ids=Object.values(cs.equip).filter(Boolean);let r=1;inventory.filter(it=>ids.includes(it.id)).forEach(it=>{const v=(it.reduce&&it.reduce['all'])||0;r*=1-v});return r}
+  function fatigueCostFinal(base){return Math.ceil(base*equipReductionFor())}
+  function renderTrainings(){const wrap=document.getElementById('trainList');wrap.innerHTML='';const cs=state.chars[state.activeChar];catalogs[state.sport].forEach(t=>{const cost=fatigueCostFinal(t.cost);const can=cs.fatigueNow>=cost;const el=document.createElement('div');el.className='it';el.innerHTML=`<div class="row space"><b>${t.name}</b><div class="row"><span class="pill"><b>Fatigue</b> ${cost}</span><span class="pill"><b>XP</b> ${t.xp}</span><button class="btn primary" ${can?'':'disabled'}>Lancer</button></div></div>`;el.querySelector('button').onclick=()=>{if(cs.fatigueNow<cost)return;cs.fatigueNow-=cost;document.getElementById('fatigueNow').textContent=cs.fatigueNow;log(`🧭 ${t.name} — coût ${cost}`)};wrap.appendChild(el)})}
+  function renderInventory(){const grid=document.getElementById('invGrid');grid.innerHTML='';inventory.forEach(it=>{const d=document.createElement('div');d.className='it';d.style.border='1px dashed #CBD5E1';d.style.padding='12px';d.style.borderRadius='12px';d.style.background='#fff';d.innerHTML=`<div class="row space"><div class="row" style="gap:8px;align-items:center">${it.img?`<img src="${it.img}" alt="${it.name}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid #CBD5E1">`:''}<b>${it.name}</b></div><span class="small">${it.rarity}</span></div><div class="small">Slot: ${it.slot}</div><div class="small">Réduction: ${(Object.values(it.reduce||{}).map(v=>Math.round(v*100)+'%').join(' / ')||'—')}</div><div class="row" style="margin-top:8px;gap:8px"><button class="btn">Assigner au perso actif</button></div>`;d.querySelector('button').onclick=()=>{state.chars[state.activeChar].equip[it.slot]=it.id;log(`🎒 ${it.name} équipé sur ${getCharById(state.activeChar).name}`)};grid.appendChild(d)})}
+  function log(t){const el=document.createElement('div');el.className='log';el.textContent=t;document.getElementById('journal').prepend(el)}
+  function init(){renderCharacters();renderTrainings();renderInventory();document.getElementById('fatigueNow').textContent=state.chars[state.activeChar].fatigueNow;document.getElementById('fatigueMax').textContent=state.chars[state.activeChar].fatigueMax;document.getElementById('dailyBtn').onclick=()=>{log('🎁 Récompense du jour +2 €')};}
+  init();
+  </script>
+</body>
+</html>
