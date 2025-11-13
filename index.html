@@ -279,11 +279,17 @@
   };
 
   const inventory = [
-    {id:'it_shoes_basic',  name:'Chaussures débutant', slot:'shoes',  rarity:'Commun', reduce:{course:0.05}},
-    {id:'it_top_breath',   name:'T‑shirt respirant',   slot:'top',    rarity:'Commun', reduce:{all:0.03}},
-    {id:'it_short_light',  name:'Short léger',         slot:'bottom', rarity:'Commun', reduce:{course:0.02, hyrox:0.02}},
-    {id:'it_watch_cardio', name:'Montre cardio',       slot:'watch',  rarity:'Commun', reduce:{all:0.03}},
-  ];
+  {id:'it_shoes_basic',  name:'Chaussures débutant', slot:'shoes',  rarity:'Commun', reduce:{course:0.05}},
+  {id:'it_top_breath',   name:'T-shirt respirant',   slot:'top',    rarity:'Commun', reduce:{all:0.03}},
+  {id:'it_short_light',  name:'Short léger',         slot:'bottom', rarity:'Commun', reduce:{course:0.02, hyrox:0.02}},
+  {id:'it_watch_cardio', name:'Montre cardio',       slot:'watch',  rarity:'Commun', reduce:{all:0.03}},
+
+  // ★ Nouveau : T-shirt ANYWEAR (10 % de réduction de fatigue sur tout)
+  {id:'it_top_anywear',  name:'T-shirt ANYWEAR',     slot:'top',    rarity:'Rare',
+   img:'./assets/equipment/anywear-shirt.jpg',
+   reduce:{all:0.10}},
+];
+
 
   const account = { level:1, xp:0, xpNext:100, coins:0.00, lastDailyRewardAt:0 };
   const state = { theme:'A', sport:'course', activeChar:'alex', chars:{} };
@@ -417,11 +423,25 @@
     inventory.forEach(it=>{
       const d=document.createElement('div'); d.className='it'; d.style.border='1px dashed var(--line)'; d.style.padding='12px'; d.style.borderRadius='12px'; d.style.background='var(--chip)';
       const assignedTo = findEquippedBy(it.id);
-      d.innerHTML = `<div class="row space"><b>${it.name}</b><span class="tag">${it.rarity}</span></div>
+            d.innerHTML = `
+        <div class="row space">
+          <div class="row" style="gap:8px;align-items:center">
+            ${it.img
+              ? `<img src="${it.img}" alt="${it.name}"
+                     style="width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid var(--line)">`
+              : ''
+            }
+            <b>${it.name}</b>
+          </div>
+          <span class="tag">${it.rarity}</span>
+        </div>
         <div class="small">Slot: ${it.slot}</div>
         <div class="small">Réduction: ${(Object.values(it.reduce||{}).map(v=>Math.round(v*100)+'%').join(' / ')||'—')}</div>
         <div class="small">${assignedTo? 'Équipé par : <b>'+assignedTo.name+'</b>' : 'Disponible'}</div>
-        <div class="row" style="margin-top:8px;gap:8px"><button class="btn" ${assignedTo?'disabled':''}>Assigner</button></div>`;
+        <div class="row" style="margin-top:8px;gap:8px">
+          <button class="btn" ${assignedTo?'disabled':''}>Assigner</button>
+        </div>`;
+
       d.querySelector('button').onclick = ()=> openAssignModal(it.id); grid.appendChild(d);
     })
   }
